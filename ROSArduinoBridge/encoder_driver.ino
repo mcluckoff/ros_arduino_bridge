@@ -102,10 +102,4 @@
   #error A encoder driver must be selected!
 #endif
 
-/* Wrap the encoder reset function */
-void resetEncoders() {
-  resetEncoder(LEFT);
-  resetEncoder(RIGHT);
-}
-
 #endif
