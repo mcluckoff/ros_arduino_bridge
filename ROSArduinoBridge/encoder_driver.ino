@@ -74,7 +74,7 @@
     volatile int last_motor_direction = 0;
 
     void updateDriveDirection(int dir) {
-        last_motor_direction = dir;  // 1 = forward, -1 = reverse
+        last_motor_direction = dir;  // 100 = forward, -100 = reverse
     }
 
     void hallInterruptHandler() {

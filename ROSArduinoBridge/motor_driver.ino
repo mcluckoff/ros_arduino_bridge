@@ -108,9 +108,9 @@
 
         // Inform encoder hall driver of direction
         if (reverse == 0)
-            updateDriveDirection(1);  // forward
+            updateDriveDirection(100);  // forward
         else
-            updateDriveDirection(-1); // reverse
+            updateDriveDirection(-100); // reverse
 
         if (reverse == 0) {
             analogWrite(DRIVE_PWM_IN1, spd);
