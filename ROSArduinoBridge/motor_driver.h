@@ -9,7 +9,7 @@
   #define LEFT_MOTOR_FORWARD   10
   #define RIGHT_MOTOR_ENABLE 12
   #define LEFT_MOTOR_ENABLE 13
-#elif ZKBM1_MOTOR_DRIVER
+#elif defined(ZKBM1_MOTOR_DRIVER)
   #define DRIVE_PWM_IN1 5
   #define DRIVE_PWM_IN2 6 
   #define STEER_PWM_IN3 9
@@ -17,5 +17,5 @@
 #endif
 
 void initMotorController();
-void setMotorSpeed(int i, int spd);
+void setMotorSpeed(int spd);
 void setMotorSpeeds(int leftSpeed, int rightSpeed);

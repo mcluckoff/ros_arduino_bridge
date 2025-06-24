@@ -270,7 +270,7 @@ void setup() {
     
     // enable PCINT1 and PCINT2 interrupt in the general interrupt mask
     PCICR |= (1 << PCIE1) | (1 << PCIE2);
-  #elif ARDUINO_HALL_COUNTER
+  #elif defined(ARDUINO_HALL_COUNTER)
     initEncoder();
   #endif
   initMotorController();
