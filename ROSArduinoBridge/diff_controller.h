@@ -116,6 +116,6 @@ void updatePID() {
   doPID(&drivePID);
 
   /* Set the motor speed accordingly */
-  setDriveMotorSpeed(drivePID.output);
+  setMotorSpeed(drivePID.output);
 }
 
