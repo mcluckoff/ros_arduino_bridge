@@ -68,6 +68,36 @@
       return;
     }
   }
+#elif defined(ARDUINO_HALL_COUNTER)
+    volatile long drive_ticks = 0L;
+    volatile bool last_hall_state = LOW;
+    volatile int last_motor_direction = 0;
+
+    void updateDriveDirection(int dir) {
+        last_motor_direction = dir;  // 1 = forward, -1 = reverse
+    }
+
+    void hallInterruptHandler() {
+        bool hall_state = digitalRead(DRIVE_HALL_PIN);
+        if (hall_state == HIGH && last_hall_state == LOW) {
+            drive_ticks += last_motor_direction;
+        }
+        last_hall_state = hall_state;
+    }
+
+    void initEncoder() {
+        pinMode(DRIVE_HALL_PIN, INPUT_PULLUP);
+        attachInterrupt(digitalPinToInterrupt(DRIVE_HALL_PIN), hallInterruptHandler, CHANGE);
+    }
+
+    long readEncoder(int i) {
+        if (i == DRIVE) return drive_ticks;
+        else return 0;
+    }
+
+    void resetEncoder(int i) {
+        if (i == DRIVE) drive_ticks = 0L;
+    }
 #else
   #error A encoder driver must be selected!
 #endif
@@ -79,4 +109,3 @@ void resetEncoders() {
 }
 
 #endif
-

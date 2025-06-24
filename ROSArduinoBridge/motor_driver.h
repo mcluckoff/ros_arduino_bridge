@@ -9,6 +9,11 @@
   #define LEFT_MOTOR_FORWARD   10
   #define RIGHT_MOTOR_ENABLE 12
   #define LEFT_MOTOR_ENABLE 13
+#elif ZKBM1_MOTOR_DRIVER
+  #define DRIVE_PWM_IN1 5
+  #define DRIVE_PWM_IN2 6 
+  #define STEER_PWM_IN3 9
+  #define STEER_PWM_IN4 10
 #endif
 
 void initMotorController();

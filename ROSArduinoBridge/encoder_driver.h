@@ -12,6 +12,8 @@
   //below can be changed, but should be PORTC pins
   #define RIGHT_ENC_PIN_A PC4  //pin A4
   #define RIGHT_ENC_PIN_B PC5   //pin A5
+#elif ARDUINO_HALL_COUNTER
+  #define DRIVE_HALL_PIN PD2
 #endif
    
 long readEncoder(int i);

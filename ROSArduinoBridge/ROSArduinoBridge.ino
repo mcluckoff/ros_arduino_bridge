@@ -60,10 +60,12 @@
    //#define ROBOGAIA
    
    /* Encoders directly attached to Arduino board */
-   #define ARDUINO_ENC_COUNTER
+   //#define ARDUINO_ENC_COUNTER
+   #define ARDUINO_HALL_COUNTER
 
    /* L298 Motor driver*/
-   #define L298_MOTOR_DRIVER
+   //#define L298_MOTOR_DRIVER
+   #define ZKBM1_MOTOR_DRIVER
 #endif
 
 //#define USE_SERVOS  // Enable use of PWM servos as defined in servos.h
@@ -197,26 +199,23 @@ int runCommand() {
     
 #ifdef USE_BASE
   case READ_ENCODERS:
-    Serial.print(readEncoder(LEFT));
-    Serial.print(" ");
-    Serial.println(readEncoder(RIGHT));
+    Serial.println(readEncoder(DRIVE));
     break;
    case RESET_ENCODERS:
-    resetEncoders();
+    resetEncoder(DRIVE);
     resetPID();
     Serial.println("OK");
     break;
   case MOTOR_SPEEDS:
     /* Reset the auto stop timer */
     lastMotorCommand = millis();
-    if (arg1 == 0 && arg2 == 0) {
-      setMotorSpeeds(0, 0);
+    if (arg1 == 0) {
+      setMotorSpeed(0);
       resetPID();
       moving = 0;
     }
     else moving = 1;
-    leftPID.TargetTicksPerFrame = arg1;
-    rightPID.TargetTicksPerFrame = arg2;
+    drivePID.TargetTicksPerFrame = arg1;
     Serial.println("OK"); 
     break;
   case MOTOR_RAW_PWM:
@@ -224,7 +223,7 @@ int runCommand() {
     lastMotorCommand = millis();
     resetPID();
     moving = 0; // Sneaky way to temporarily disable the PID
-    setMotorSpeeds(arg1, arg2);
+    setMotorSpeed(arg1);
     Serial.println("OK"); 
     break;
   case UPDATE_PID:
@@ -271,6 +270,8 @@ void setup() {
     
     // enable PCINT1 and PCINT2 interrupt in the general interrupt mask
     PCICR |= (1 << PCIE1) | (1 << PCIE2);
+  #elif ARDUINO_HALL_COUNTER
+    initEncoder();
   #endif
   initMotorController();
   resetPID();
@@ -342,7 +343,7 @@ void loop() {
   
   // Check to see if we have exceeded the auto-stop interval
   if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
-    setMotorSpeeds(0, 0);
+    setMotorSpeed(0);
     moving = 0;
   }
 #endif

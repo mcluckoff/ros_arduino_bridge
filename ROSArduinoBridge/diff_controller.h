@@ -30,7 +30,7 @@ typedef struct {
 }
 SetPointInfo;
 
-SetPointInfo leftPID, rightPID;
+SetPointInfo drivePID;
 
 /* PID Parameters */
 int Kp = 20;
@@ -49,19 +49,12 @@ unsigned char moving = 0; // is the base in motion?
 * when going from stop to moving, that's why we can init everything on zero.
 */
 void resetPID(){
-   leftPID.TargetTicksPerFrame = 0.0;
-   leftPID.Encoder = readEncoder(LEFT);
-   leftPID.PrevEnc = leftPID.Encoder;
-   leftPID.output = 0;
-   leftPID.PrevInput = 0;
-   leftPID.ITerm = 0;
-
-   rightPID.TargetTicksPerFrame = 0.0;
-   rightPID.Encoder = readEncoder(RIGHT);
-   rightPID.PrevEnc = rightPID.Encoder;
-   rightPID.output = 0;
-   rightPID.PrevInput = 0;
-   rightPID.ITerm = 0;
+   drivePID.TargetTicksPerFrame = 0.0;
+   drivePID.Encoder = readEncoder(DRIVE);
+   drivePID.PrevEnc = drivePID.Encoder;
+   drivePID.output = 0;
+   drivePID.PrevInput = 0;
+   drivePID.ITerm = 0;
 }
 
 /* PID routine to compute the next motor commands */
@@ -105,8 +98,7 @@ void doPID(SetPointInfo * p) {
 /* Read the encoder values and call the PID routine */
 void updatePID() {
   /* Read the encoders */
-  leftPID.Encoder = readEncoder(LEFT);
-  rightPID.Encoder = readEncoder(RIGHT);
+  drivePID.Encoder = readEncoder(DRIVE);
   
   /* If we're not moving there is nothing more to do */
   if (!moving){
@@ -116,15 +108,14 @@ void updatePID() {
     * PrevInput is considered a good proxy to detect
     * whether reset has already happened
     */
-    if (leftPID.PrevInput != 0 || rightPID.PrevInput != 0) resetPID();
+    if (drivePID.PrevInput != 0) resetPID();
     return;
   }
 
   /* Compute PID update for each motor */
-  doPID(&rightPID);
-  doPID(&leftPID);
+  doPID(&drivePID);
 
-  /* Set the motor speeds accordingly */
-  setMotorSpeeds(leftPID.output, rightPID.output);
+  /* Set the motor speed accordingly */
+  setDriveMotorSpeed(drivePID.output);
 }
 
