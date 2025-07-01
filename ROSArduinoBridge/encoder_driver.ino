@@ -110,7 +110,7 @@
 
     void rotaryInterruptHandler() {
         bool clk_state = digitalRead(CLOCK_ROTARY_PIN);
-        if (clk_state != last_clk_state) {  // state changed on clock pin
+        if (clk_state == HIGH) {  // Only on rising edge of CLK
             // read data pin to determine direction
             bool data_state = digitalRead(DATA_ROTARY_PIN);
             if (data_state != clk_state) {
@@ -126,7 +126,7 @@
         pinMode(CLOCK_ROTARY_PIN, INPUT_PULLUP);
         pinMode(DATA_ROTARY_PIN, INPUT_PULLUP);
         last_clk_state = digitalRead(CLOCK_ROTARY_PIN);
-        attachInterrupt(digitalPinToInterrupt(CLOCK_ROTARY_PIN), rotaryInterruptHandler, CHANGE);
+        attachInterrupt(digitalPinToInterrupt(CLOCK_ROTARY_PIN), rotaryInterruptHandler, RISING);
     }
 
     long readRotary(int i) {

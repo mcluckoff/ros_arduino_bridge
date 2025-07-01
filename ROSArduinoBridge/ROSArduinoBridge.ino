@@ -200,7 +200,9 @@ int runCommand() {
     
 #ifdef USE_BASE
   case READ_ENCODERS:
-    Serial.println(readEncoder(DRIVE));
+    Serial.print(readEncoder(DRIVE));
+    Serial.print(" ");
+    Serial.println(readRotary(STEER));
     break;
   case RESET_ENCODERS:
     resetEncoder(DRIVE);
@@ -278,6 +280,9 @@ void setup() {
     PCICR |= (1 << PCIE1) | (1 << PCIE2);
   #elif defined(ARDUINO_HALL_COUNTER)
     initEncoder();
+  #endif
+  #ifdef ARDUINO_ROTARY_STATES
+    initRotary();
   #endif
   initMotorController();
   resetPID();
