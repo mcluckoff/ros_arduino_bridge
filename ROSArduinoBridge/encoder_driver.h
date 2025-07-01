@@ -2,7 +2,7 @@
    Encoder driver function definitions - by James Nugen
    ************************************************************ */
    
-   
+// Driving motors encoder drivers: 
 #ifdef ARDUINO_ENC_COUNTER
   //below can be changed, but should be PORTD pins; 
   //otherwise additional changes in the code are required
@@ -14,6 +14,12 @@
   #define RIGHT_ENC_PIN_B PC5   //pin A5
 #elif defined(ARDUINO_HALL_COUNTER)
   #define DRIVE_HALL_PIN PD2
+#endif
+
+// Steering motor encoder drivers: 
+#ifdef ARDUINO_ROTARY_STATES
+  #define CLOCK_ROTARY_PIN PD3
+  #define DATA_ROTARY_PIN PD4
 #endif
    
 long readEncoder(int i);

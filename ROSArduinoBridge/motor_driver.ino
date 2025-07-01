@@ -108,9 +108,9 @@
 
         // Inform encoder hall driver of direction
         if (reverse == 0)
-            updateDriveDirection(100);  // forward
+            updateDriveDirection(10);  // forward
         else
-            updateDriveDirection(-100); // reverse
+            updateDriveDirection(-10); // reverse
 
         if (reverse == 0) {
             analogWrite(DRIVE_PWM_IN1, spd);
@@ -121,10 +121,27 @@
         }
       }
 
-      // TODO STEERING MOTOR DRIVER PART
-      // void setSteeringMotorSpeed(int spd) {
+      void setSteeringDirection(int angle) {
+        long current_angle = readRotary(STEER);
+        long error = angle - current_angle;
 
-      //  }
+        if (abs(error) <= 11.5) {
+            // Already at target: stop the steering motor
+            analogWrite(STEER_PWM_IN3, 0);
+            analogWrite(STEER_PWM_IN4, 0);
+            return;
+        }
+
+        if (error > 0) {
+            // Need to turn RIGHT (forward)
+            analogWrite(STEER_PWM_IN3, 80);
+            analogWrite(STEER_PWM_IN4, 0);
+        } else {
+            // Need to turn LEFT (backward)
+            analogWrite(STEER_PWM_IN3, 0);
+            analogWrite(STEER_PWM_IN4, 80);
+        }
+      }
    #else
      #error A motor driver must be selected!
    #endif

@@ -62,6 +62,7 @@
    /* Encoders directly attached to Arduino board */
    //#define ARDUINO_ENC_COUNTER
    #define ARDUINO_HALL_COUNTER
+   #define ARDUINO_ROTARY_STATES
 
    /* L298 Motor driver*/
    //#define L298_MOTOR_DRIVER
@@ -201,11 +202,16 @@ int runCommand() {
   case READ_ENCODERS:
     Serial.println(readEncoder(DRIVE));
     break;
-   case RESET_ENCODERS:
+  case RESET_ENCODERS:
     resetEncoder(DRIVE);
+    resetRotary(STEER);
     resetPID();
     Serial.println("OK");
     break;
+  case STEERING_DIR:
+    setSteeringDirection(arg1);
+    Serial.println("OK");
+    break;  
   case MOTOR_SPEEDS:
     /* Reset the auto stop timer */
     lastMotorCommand = millis();

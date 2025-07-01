@@ -9,6 +9,7 @@
    
 #ifdef USE_BASE
 
+// Driving motors encoder drivers: 
 #ifdef ROBOGAIA
   /* The Robogaia Mega Encoder shield */
   #include "MegaEncoderCounter.h"
@@ -74,7 +75,7 @@
     volatile int last_motor_direction = 0;
 
     void updateDriveDirection(int dir) {
-        last_motor_direction = dir;  // 100 = forward, -100 = reverse
+        last_motor_direction = dir;  // 10 = forward, -10 = reverse
     }
 
     void hallInterruptHandler() {
@@ -100,6 +101,42 @@
     }
 #else
   #error A encoder driver must be selected!
+#endif
+
+// Steering motor encoder drivers: 
+#ifdef ARDUINO_ROTARY_STATES
+    volatile long rotary_ticks = 0L;
+    volatile bool last_clk_state = LOW;
+
+    void rotaryInterruptHandler() {
+        bool clk_state = digitalRead(CLOCK_ROTARY_PIN);
+        if (clk_state != last_clk_state) {  // state changed on clock pin
+            // read data pin to determine direction
+            bool data_state = digitalRead(DATA_ROTARY_PIN);
+            if (data_state != clk_state) {
+                rotary_ticks++;  // clockwise
+            } else {
+                rotary_ticks--;  // counter-clockwise
+            }
+        }
+        last_clk_state = clk_state;
+    }
+
+    void initRotary() {
+        pinMode(CLOCK_ROTARY_PIN, INPUT_PULLUP);
+        pinMode(DATA_ROTARY_PIN, INPUT_PULLUP);
+        last_clk_state = digitalRead(CLOCK_ROTARY_PIN);
+        attachInterrupt(digitalPinToInterrupt(CLOCK_ROTARY_PIN), rotaryInterruptHandler, CHANGE);
+    }
+
+    long readRotary(int i) {
+        if (i == STEER) return rotary_ticks*23; // sneaky way to return degrees
+        else return 0;
+    }
+
+    void resetRotary(int i) {
+        if (i == STEER) rotary_ticks = 0L;
+    }
 #endif
 
 #endif
