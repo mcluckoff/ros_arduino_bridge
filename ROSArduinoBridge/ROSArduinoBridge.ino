@@ -350,6 +350,7 @@ void loop() {
   // Check to see if we have exceeded the auto-stop interval
   if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
     setMotorSpeed(0);
+    setSteeringDirection(readEncoder(STEER));
     moving = 0;
   }
 #endif
