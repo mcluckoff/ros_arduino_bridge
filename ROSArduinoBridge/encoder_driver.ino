@@ -69,74 +69,54 @@
       return;
     }
   }
-#elif defined(ARDUINO_HALL_COUNTER)
-    volatile long drive_ticks = 0L;
-    volatile bool last_hall_state = LOW;
-    volatile int last_motor_direction = 0;
+#elif defined(ARDUINO_HC89_COUNTER)
+  volatile long enc_count[2] = {0L, 0L}; // DRIVE = 0, STEER = 1
+  volatile int enc_direction[2] = {1, 1}; // +1 = forward/right, -1 = reverse/left
 
-    void updateDriveDirection(int dir) {
-        last_motor_direction = dir;  // 10 = forward, -10 = reverse
-    }
+  void initEncoders() {
+    pinMode(DRIVE_ENC_PIN, INPUT_PULLUP);
+    pinMode(STEER_ENC_PIN, INPUT_PULLUP);
 
-    void hallInterruptHandler() {
-        bool hall_state = digitalRead(DRIVE_HALL_PIN);
-        if (hall_state == HIGH && last_hall_state == LOW) {
-            drive_ticks += last_motor_direction;
-        }
-        last_hall_state = hall_state;
-    }
+    attachInterrupt(digitalPinToInterrupt(DRIVE_ENC_PIN), driveISR, FALLING); // or RISING, CHANGE
+    attachInterrupt(digitalPinToInterrupt(STEER_ENC_PIN), steerISR, FALLING);
+  }
 
-    void initEncoder() {
-        pinMode(DRIVE_HALL_PIN, INPUT_PULLUP);
-        attachInterrupt(digitalPinToInterrupt(DRIVE_HALL_PIN), hallInterruptHandler, CHANGE);
+  void updateEncoderDirection(int enc, int dir) {
+    if (enc == DRIVE || enc == STEER) {
+      if (dir == 1 || dir == -1) {
+        enc_direction[enc] = dir;
+      }
     }
+  }
 
-    long readEncoder(int i) {
-        if (i == DRIVE) return drive_ticks;
-        else return 0;
-    }
+  void driveISR() {
+    enc_count[DRIVE] += enc_direction[DRIVE];
+  }
 
-    void resetEncoder(int i) {
-        if (i == DRIVE) drive_ticks = 0L;
+  void steerISR() {
+    enc_count[STEER] += enc_direction[STEER];
+  }
+
+  long readEncoder(int i) {
+    if (i == DRIVE) return enc_count[DRIVE];
+    else if (i == STEER) return enc_count[STEER];
+    else return 0L;
+  }
+
+  void resetEncoder(int i) {
+    if (i == DRIVE) {
+      enc_count[DRIVE] = 0L;
+    } else if (i == STEER) {
+      enc_count[STEER] = 0L;
     }
+  }
 #else
   #error A encoder driver must be selected!
 #endif
 
-// Steering motor encoder drivers: 
-#ifdef ARDUINO_ROTARY_STATES
-    volatile long rotary_ticks = 0L;
-    volatile bool last_clk_state = LOW;
-
-    void rotaryInterruptHandler() {
-        bool clk_state = digitalRead(CLOCK_ROTARY_PIN);
-        if (clk_state == HIGH) {  // Only on rising edge of CLK
-            // read data pin to determine direction
-            bool data_state = digitalRead(DATA_ROTARY_PIN);
-            if (data_state != clk_state) {
-                rotary_ticks++;  // clockwise
-            } else {
-                rotary_ticks--;  // counter-clockwise
-            }
-        }
-        last_clk_state = clk_state;
-    }
-
-    void initRotary() {
-        pinMode(CLOCK_ROTARY_PIN, INPUT_PULLUP);
-        pinMode(DATA_ROTARY_PIN, INPUT_PULLUP);
-        last_clk_state = digitalRead(CLOCK_ROTARY_PIN);
-        attachInterrupt(digitalPinToInterrupt(CLOCK_ROTARY_PIN), rotaryInterruptHandler, RISING);
-    }
-
-    long readRotary(int i) {
-        if (i == STEER) return rotary_ticks*23; // sneaky way to return degrees
-        else return 0;
-    }
-
-    void resetRotary(int i) {
-        if (i == STEER) rotary_ticks = 0L;
-    }
-#endif
+void resetEncoders() {
+  resetEncoder(DRIVE);
+  resetEncoder(STEER);
+}
 
 #endif

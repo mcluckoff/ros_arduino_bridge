@@ -12,16 +12,12 @@
   //below can be changed, but should be PORTC pins
   #define RIGHT_ENC_PIN_A PC4  //pin A4
   #define RIGHT_ENC_PIN_B PC5   //pin A5
-#elif defined(ARDUINO_HALL_COUNTER)
-  #define DRIVE_HALL_PIN PD2
-#endif
-
-// Steering motor encoder drivers: 
-#ifdef ARDUINO_ROTARY_STATES
-  #define CLOCK_ROTARY_PIN PD3
-  #define DATA_ROTARY_PIN PD4
+#elif defined(ARDUINO_HC89_COUNTER)
+  #define DRIVE_ENC_PIN PD2
+  #define STEER_ENC_PIN PD3
 #endif
    
 long readEncoder(int i);
 void resetEncoder(int i);
+void resetEncoders();
 

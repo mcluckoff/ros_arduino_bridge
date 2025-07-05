@@ -61,8 +61,7 @@
    
    /* Encoders directly attached to Arduino board */
    //#define ARDUINO_ENC_COUNTER
-   #define ARDUINO_HALL_COUNTER
-   #define ARDUINO_ROTARY_STATES
+   #define ARDUINO_HC89_COUNTER
 
    /* L298 Motor driver*/
    //#define L298_MOTOR_DRIVER
@@ -202,11 +201,10 @@ int runCommand() {
   case READ_ENCODERS:
     Serial.print(readEncoder(DRIVE));
     Serial.print(" ");
-    Serial.println(readRotary(STEER));
+    Serial.println(readEncoder(STEER));
     break;
   case RESET_ENCODERS:
-    resetEncoder(DRIVE);
-    resetRotary(STEER);
+    resetEncoders();
     resetPID();
     Serial.println("OK");
     break;
@@ -280,9 +278,6 @@ void setup() {
     PCICR |= (1 << PCIE1) | (1 << PCIE2);
   #elif defined(ARDUINO_HALL_COUNTER)
     initEncoder();
-  #endif
-  #ifdef ARDUINO_ROTARY_STATES
-    initRotary();
   #endif
   initMotorController();
   resetPID();

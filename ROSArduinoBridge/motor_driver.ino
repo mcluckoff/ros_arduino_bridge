@@ -96,50 +96,51 @@
       }
 
       void setMotorSpeed(int spd) {
-        unsigned char reverse = 0;
+        bool reverse = false;
     
         if (spd < 0)
         {
           spd = -spd;
-          reverse = 1;
+          reverse = true;
         }
         if (spd > 255)
           spd = 255;
 
-        // Inform encoder hall driver of direction
-        if (reverse == 0)
-            updateDriveDirection(10);  // forward
-        else
-            updateDriveDirection(-10); // reverse
+        // Inform encoder driver of direction
+        updateEncoderDirection(DRIVE, reverse ? -1 : 1);
 
-        if (reverse == 0) {
-            analogWrite(DRIVE_PWM_IN1, spd);
-            analogWrite(DRIVE_PWM_IN2, 0);
-          } else {
-            analogWrite(DRIVE_PWM_IN1, 0);
-            analogWrite(DRIVE_PWM_IN2, spd);
+        if (!reverse) {
+          analogWrite(DRIVE_PWM_IN1, spd);
+          analogWrite(DRIVE_PWM_IN2, 0);
+        } else {
+          analogWrite(DRIVE_PWM_IN1, 0);
+          analogWrite(DRIVE_PWM_IN2, spd);
         }
       }
 
-      void setSteeringDirection(int angle) {
-        long current_angle = readRotary(STEER);
-        long error = angle - current_angle;
+      void setSteeringDirection(int target_position) {
+        long current_position = readEncoder(STEER);
+        long error = target_position - current_position;
 
-        if (abs(error) <= 11.5) {
-            // Already at target: stop the steering motor
-            analogWrite(STEER_PWM_IN3, 0);
-            analogWrite(STEER_PWM_IN4, 0);
-            return;
+        const long tolerance = 100; // Encoder counts tolerance
+
+        if (abs(error) <= tolerance) {
+          // Stop steering motor if within tolerance
+          analogWrite(STEER_PWM_IN3, 0);
+          analogWrite(STEER_PWM_IN4, 0);
+          return;
         }
 
         if (error > 0) {
-            // Need to turn RIGHT (forward)
-            analogWrite(STEER_PWM_IN3, 80);
-            analogWrite(STEER_PWM_IN4, 0);
+          // Turn steering right
+          updateEncoderDirection(STEER, 1);
+          analogWrite(STEER_PWM_IN3, 80);
+          analogWrite(STEER_PWM_IN4, 0);
         } else {
-            // Need to turn LEFT (backward)
-            analogWrite(STEER_PWM_IN3, 0);
-            analogWrite(STEER_PWM_IN4, 80);
+          // Turn steering left
+          updateEncoderDirection(STEER, -1);
+          analogWrite(STEER_PWM_IN3, 0);
+          analogWrite(STEER_PWM_IN4, 80);
         }
       }
    #else
