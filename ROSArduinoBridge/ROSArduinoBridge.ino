@@ -276,8 +276,8 @@ void setup() {
     
     // enable PCINT1 and PCINT2 interrupt in the general interrupt mask
     PCICR |= (1 << PCIE1) | (1 << PCIE2);
-  #elif defined(ARDUINO_HALL_COUNTER)
-    initEncoder();
+  #elif defined(ARDUINO_HC89_COUNTER)
+    initEncoders();
   #endif
   initMotorController();
   resetPID();
