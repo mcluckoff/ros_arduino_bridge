@@ -107,7 +107,12 @@
           spd = 255;
 
         // Inform encoder driver of direction
-        updateEncoderDirection(DRIVE, reverse ? -1 : 1);
+        // Pass 0 for stop condition to trigger inertia-aware direction handling
+        if (spd == 0) {
+          updateEncoderDirection(DRIVE, 0); // Signal stop condition
+        } else {
+          updateEncoderDirection(DRIVE, reverse ? -1 : 1);
+        }
 
         if (!reverse) {
           analogWrite(DRIVE_PWM_IN1, spd);

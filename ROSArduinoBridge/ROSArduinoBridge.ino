@@ -243,6 +243,10 @@ int runCommand() {
     Ko = pid_args[3];
     Serial.println("OK");
     break;
+  case SET_ENC_DIR:
+    setEncoderDirection(arg1, arg2);
+    Serial.println("OK");
+    break;
 #endif
   default:
     Serial.println("Invalid Command");

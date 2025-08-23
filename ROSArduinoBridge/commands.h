@@ -20,6 +20,7 @@
 #define UPDATE_PID     'u'
 #define DIGITAL_WRITE  'w'
 #define ANALOG_WRITE   'x'
+#define SET_ENC_DIR    'y'
 #define DRIVE           0
 #define STEER           1
 
