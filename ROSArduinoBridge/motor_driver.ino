@@ -127,7 +127,7 @@
         long current_position = readEncoder(STEER);
         long error = target_position - current_position;
 
-        const long tolerance = 100; // Encoder counts tolerance
+        const long tolerance = 8; // Encoder counts tolerance
 
         if (abs(error) <= tolerance) {
           // Stop steering motor if within tolerance
@@ -139,13 +139,13 @@
         if (error > 0) {
           // Turn steering right
           updateEncoderDirection(STEER, 1);
-          analogWrite(STEER_PWM_IN3, 80);
+          analogWrite(STEER_PWM_IN3, 255);
           analogWrite(STEER_PWM_IN4, 0);
         } else {
           // Turn steering left
           updateEncoderDirection(STEER, -1);
           analogWrite(STEER_PWM_IN3, 0);
-          analogWrite(STEER_PWM_IN4, 80);
+          analogWrite(STEER_PWM_IN4, 255);
         }
       }
    #else
