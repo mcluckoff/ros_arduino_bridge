@@ -19,3 +19,4 @@
 void initMotorController();
 void setMotorSpeed(int spd);
 void setMotorSpeeds(int leftSpeed, int rightSpeed);
+void updateSteeringParameters(long tolerance, long dead_zone, long slow_zone, int min_pwm, int max_pwm);

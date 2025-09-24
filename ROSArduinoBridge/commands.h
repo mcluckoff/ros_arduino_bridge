@@ -18,6 +18,7 @@
 #define SERVO_WRITE    's'
 #define SERVO_READ     't'
 #define UPDATE_PID     'u'
+#define UPDATE_STEERING 'v'
 #define DIGITAL_WRITE  'w'
 #define ANALOG_WRITE   'x'
 #define SET_ENC_DIR    'y'

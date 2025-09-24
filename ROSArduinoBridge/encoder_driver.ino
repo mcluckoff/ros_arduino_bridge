@@ -84,7 +84,7 @@
     pinMode(STEER_ENC_PIN, INPUT_PULLUP);
 
     attachInterrupt(digitalPinToInterrupt(DRIVE_ENC_PIN), driveISR, FALLING); // or RISING, CHANGE
-    attachInterrupt(digitalPinToInterrupt(STEER_ENC_PIN), steerISR, FALLING);
+    attachInterrupt(digitalPinToInterrupt(STEER_ENC_PIN), steerISR, RISING);
   }
 
   void updateEncoderDirection(int enc, int dir) {

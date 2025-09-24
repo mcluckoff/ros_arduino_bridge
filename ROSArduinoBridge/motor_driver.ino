@@ -88,6 +88,14 @@
      }
    #elif defined ZKBM1_MOTOR_DRIVER
    
+      // Steering control parameters - adjust these to tune steering behavior
+      long STEERING_TOLERANCE = 4;    // Encoder counts tolerance for stopping
+      long STEERING_DEAD_ZONE = 2;    // Dead zone to prevent micro-adjustments
+      long STEERING_SLOW_ZONE = 20;   // Zone where speed reduction starts
+      int STEERING_MIN_PWM = 30;      // Minimum PWM to ensure motor can turn
+      int STEERING_MAX_PWM = 255;     // Maximum PWM for full speed
+      bool STEERING_EXPONENTIAL = true; // Use exponential vs linear speed reduction
+
       void initMotorController() {
         pinMode(DRIVE_PWM_IN1, OUTPUT);
         pinMode(DRIVE_PWM_IN2, OUTPUT);
@@ -127,26 +135,56 @@
         long current_position = readEncoder(STEER);
         long error = target_position - current_position;
 
-        const long tolerance = 8; // Encoder counts tolerance
-
-        if (abs(error) <= tolerance) {
-          // Stop steering motor if within tolerance
+        // Check if we're within dead zone (no movement needed)
+        if (abs(error) <= STEERING_DEAD_ZONE) {
           analogWrite(STEER_PWM_IN3, 0);
           analogWrite(STEER_PWM_IN4, 0);
           return;
         }
 
+        // Calculate PWM based on distance from target
+        int pwm_value;
+        if (abs(error) <= STEERING_SLOW_ZONE) {
+          // In slow zone - use exponential decay for smoother deceleration
+          // This creates a more gradual speed reduction as we approach the target
+          float progress = (float)abs(error) / STEERING_SLOW_ZONE;
+          if (STEERING_EXPONENTIAL) {
+            pwm_value = STEERING_MIN_PWM + (STEERING_MAX_PWM - STEERING_MIN_PWM) * (progress * progress);
+          } else {
+            // Linear speed reduction as alternative
+            pwm_value = STEERING_MIN_PWM + (STEERING_MAX_PWM - STEERING_MIN_PWM) * progress;
+          }
+        } else {
+          // Outside slow zone - full speed
+          pwm_value = STEERING_MAX_PWM;
+        }
+
+        // Debug output (can be commented out in production)
+        // Serial.print("Target:"); Serial.print(target_position);
+        // Serial.print(" Current:"); Serial.print(current_position);
+        // Serial.print(" Error:"); Serial.print(error);
+        // Serial.print(" PWM:"); Serial.println(pwm_value);
+
         if (error > 0) {
           // Turn steering right
           updateEncoderDirection(STEER, 1);
-          analogWrite(STEER_PWM_IN3, 255);
+          analogWrite(STEER_PWM_IN3, pwm_value);
           analogWrite(STEER_PWM_IN4, 0);
         } else {
           // Turn steering left
           updateEncoderDirection(STEER, -1);
           analogWrite(STEER_PWM_IN3, 0);
-          analogWrite(STEER_PWM_IN4, 255);
+          analogWrite(STEER_PWM_IN4, pwm_value);
         }
+      }
+
+      void updateSteeringParameters(long tolerance, long dead_zone, long slow_zone, int min_pwm, int max_pwm) {
+        // Validate and update steering parameters
+        if (tolerance > 0) STEERING_TOLERANCE = tolerance;
+        if (dead_zone >= 0) STEERING_DEAD_ZONE = dead_zone;
+        if (slow_zone > dead_zone) STEERING_SLOW_ZONE = slow_zone;
+        if (min_pwm >= 0 && min_pwm < max_pwm) STEERING_MIN_PWM = min_pwm;
+        if (max_pwm > min_pwm && max_pwm <= 255) STEERING_MAX_PWM = max_pwm;
       }
    #else
      #error A motor driver must be selected!

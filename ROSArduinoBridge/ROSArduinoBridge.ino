@@ -243,6 +243,17 @@ int runCommand() {
     Ko = pid_args[3];
     Serial.println("OK");
     break;
+  case UPDATE_STEERING:
+    while ((str = strtok_r(p, ":", &p)) != '\0') {
+       pid_args[i] = atoi(str);
+       i++;
+    }
+    // Update steering parameters: tolerance, dead_zone, slow_zone, min_pwm, max_pwm
+    if (i >= 5) {
+      updateSteeringParameters(pid_args[0], pid_args[1], pid_args[2], pid_args[3], pid_args[4]);
+    }
+    Serial.println("OK");
+    break;
   case SET_ENC_DIR:
     setEncoderDirection(arg1, arg2);
     Serial.println("OK");
